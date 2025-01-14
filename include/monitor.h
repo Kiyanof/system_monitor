@@ -15,6 +15,7 @@
 #include <pwd.h>
 #include <signal.h>
 #include <time.h>
+#include "docker_monitor.h"
 
 #define MAX_DISK_NAME_LEN 32
 #define MAX_PROC_NAME 256
@@ -33,6 +34,7 @@ typedef struct {
     bool monitor_memory;
     bool monitor_disk;
     bool monitor_processes;
+    bool monitor_docker;    // New field for Docker monitoring
     int num_processes;    // Number of top processes to show
     char disk_device[MAX_DISK_NAME_LEN];
     int update_interval;
@@ -119,5 +121,10 @@ void print_memory_info(MemoryStats *stats);
 void print_disk_info(float read_speed, float write_speed);
 void print_usage(const char *program_name);
 void parse_arguments(int argc, char *argv[], MonitorConfig *config);
+
+// Docker monitoring functions
+void print_docker_header(void);
+void print_docker_container_info(docker_stats_t *stats);
+void print_docker_stats_list(docker_stats_t *stats, int count);
 
 #endif // SYSTEM_MONITOR_H

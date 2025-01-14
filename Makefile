@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -I./include
-LDFLAGS = -lrt -pthread
+LDFLAGS = -lrt -pthread -lcurl -ljson-c
 
 SRC_DIR = src
 OBJ_DIR = obj
@@ -12,6 +12,7 @@ COMMON_SRCS = $(wildcard $(SRC_DIR)/cpu/*.c) \
               $(wildcard $(SRC_DIR)/disk/*.c) \
               $(wildcard $(SRC_DIR)/process/*.c) \
               $(wildcard $(SRC_DIR)/config/*.c) \
+              $(wildcard $(SRC_DIR)/docker/*.c) \
               $(wildcard $(SRC_DIR)/ipc/*.c)
 
 COLLECTOR_SRCS = $(SRC_DIR)/collector.c
@@ -34,7 +35,7 @@ all: directories $(COLLECTOR) $(DISPLAY)
 directories:
 	@mkdir -p $(OBJ_DIR) $(BIN_DIR) \
 		$(OBJ_DIR)/cpu $(OBJ_DIR)/memory $(OBJ_DIR)/disk \
-		$(OBJ_DIR)/process $(OBJ_DIR)/config $(OBJ_DIR)/ipc
+		$(OBJ_DIR)/process $(OBJ_DIR)/config $(OBJ_DIR)/docker $(OBJ_DIR)/ipc
 
 $(COLLECTOR): $(COMMON_OBJS) $(COLLECTOR_OBJS)
 	$(CC) $^ -o $@ $(LDFLAGS)
