@@ -190,14 +190,23 @@ int compare_processes(const void *a, const void *b) {
 }
 
 // Get list of all processes
-int get_process_list(ProcessInfo *processes, int *count, int max_processes) {
+int get_process_list(ProcessInfo **processes, int *count, int max_processes) {
     DIR *proc_dir;
     struct dirent *entry;
     int num_processes = 0;
     
+    // Allocate memory for the process list
+    *processes = calloc(max_processes, sizeof(ProcessInfo));
+    if (!*processes) {
+        fprintf(stderr, "Failed to allocate memory for process list\n");
+        return -1;
+    }
+    
     proc_dir = opendir("/proc");
     if (proc_dir == NULL) {
         perror("Failed to open /proc");
+        free(*processes);
+        *processes = NULL;
         return -1;
     }
 
@@ -206,7 +215,7 @@ int get_process_list(ProcessInfo *processes, int *count, int max_processes) {
         // Check if the entry is a process (directory with numeric name)
         if (entry->d_type == DT_DIR && isdigit(entry->d_name[0])) {
             pid_t pid = atoi(entry->d_name);
-            ProcessInfo *curr_proc = &processes[num_processes];
+            ProcessInfo *curr_proc = &(*processes)[num_processes];
             
             curr_proc->pid = pid;
             

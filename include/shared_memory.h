@@ -12,10 +12,12 @@
 #include <semaphore.h>
 
 #include "monitor.h"
+#include "docker_monitor.h"
 
 // Shared memory segment name
 #define SHM_NAME "/system_monitor_shm"
 #define SEM_NAME "/system_monitor_sem"
+#define MAX_DOCKER_CONTAINERS 100
 
 // Structure to hold all monitoring data in shared memory
 typedef struct {
@@ -24,6 +26,8 @@ typedef struct {
     DiskStats disk_stats;
     ProcessInfo processes[MAX_PROCESSES];
     int process_count;
+    docker_stats_t docker_stats[MAX_DOCKER_CONTAINERS];
+    int docker_count;
     bool data_ready;
 } SharedData;
 
