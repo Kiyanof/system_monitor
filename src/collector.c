@@ -26,13 +26,16 @@ int main(int argc, char *argv[]) {
     // Set up signal handler
     signal(SIGINT, signal_handler);
 
+    printf("Collector process: Creating shared memory...\n");
     // Create shared memory
     shared_data = create_shared_memory();
     if (!shared_data) {
         fprintf(stderr, "Failed to create shared memory\n");
         return 1;
     }
+    printf("Collector process: Successfully created shared memory\n");
 
+    printf("Collector process: Creating semaphore...\n");
     // Create semaphore
     sem = create_semaphore();
     if (!sem) {
@@ -40,6 +43,7 @@ int main(int argc, char *argv[]) {
         destroy_shared_memory(shared_data);
         return 1;
     }
+    printf("Collector process: Successfully created semaphore\n");
 
     // Allocate memory for previous process states
     if (config.monitor_processes) {
@@ -68,8 +72,10 @@ int main(int argc, char *argv[]) {
 
     // Main collection loop
     while (running) {
+        printf("Collector process: Waiting for semaphore...\n");
         // Wait for semaphore
         sem_wait(sem);
+        printf("Collector process: Got semaphore\n");
 
         // Collect CPU stats
         if (config.monitor_cpu) {
@@ -121,9 +127,11 @@ int main(int argc, char *argv[]) {
 
         // Mark data as ready
         shared_data->data_ready = true;
+        printf("Collector process: Data is ready\n");
 
         // Release semaphore
         sem_post(sem);
+        printf("Collector process: Released semaphore\n");
 
         // Sleep for update interval
         sleep(config.update_interval);
