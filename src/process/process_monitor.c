@@ -189,37 +189,38 @@ int compare_processes(const void *a, const void *b) {
     return 0;
 }
 
-// Get list of running processes
-int get_process_list(ProcessInfo *processes, int max_processes) {
-    DIR *dir;
+// Get list of all processes
+int get_process_list(ProcessInfo *processes, int *count, int max_processes) {
+    DIR *proc_dir;
     struct dirent *entry;
-    int count = 0;
+    int num_processes = 0;
     
-    dir = opendir("/proc");
-    if (dir == NULL) {
-        perror("Error opening /proc");
+    proc_dir = opendir("/proc");
+    if (proc_dir == NULL) {
+        perror("Failed to open /proc");
         return -1;
     }
 
-    while ((entry = readdir(dir)) != NULL && count < max_processes) {
-        // Check if the entry is a process directory (numeric name)
+    // Scan /proc directory for processes
+    while ((entry = readdir(proc_dir)) != NULL && num_processes < max_processes) {
+        // Check if the entry is a process (directory with numeric name)
         if (entry->d_type == DT_DIR && isdigit(entry->d_name[0])) {
             pid_t pid = atoi(entry->d_name);
+            ProcessInfo *curr_proc = &processes[num_processes];
             
-            // Initialize the process info structure
-            memset(&processes[count], 0, sizeof(ProcessInfo));
-            processes[count].pid = pid;
-
-            if (read_proc_stat(pid, &processes[count]) == 0 &&
-                read_proc_status(pid, &processes[count]) == 0) {
-                read_proc_cmdline(pid, &processes[count]); // Optional, don't fail if it fails
-                count++;
+            curr_proc->pid = pid;
+            
+            // Read process information
+            if (read_proc_stat(pid, curr_proc) == 0 &&
+                read_proc_status(pid, curr_proc) == 0) {
+                num_processes++;
             }
         }
     }
 
-    closedir(dir);
-    return count;
+    closedir(proc_dir);
+    *count = num_processes;
+    return 0;
 }
 
 // Print process list header

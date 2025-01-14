@@ -10,6 +10,8 @@
 #include <dirent.h>
 #include <pwd.h>
 #include <ctype.h>
+#include <stdbool.h>
+#include <linux/limits.h>
 
 // ANSI color codes
 #define COLOR_RESET   "\x1B[0m"
@@ -59,7 +61,7 @@ int read_proc_status(pid_t pid, ProcessInfo *info);
 int read_proc_cmdline(pid_t pid, ProcessInfo *proc);
 void calculate_proc_cpu_usage(ProcessInfo *prev, ProcessInfo *curr, unsigned long total_time);
 int compare_processes(const void *a, const void *b);
-int get_process_list(ProcessInfo *processes, int max_processes);
+int get_process_list(ProcessInfo *processes, int *count, int max_processes);
 void print_process_header(void);
 void print_process_info(ProcessInfo *proc);
 void print_process_list(ProcessInfo *processes, int count);
