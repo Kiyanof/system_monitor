@@ -4,12 +4,15 @@
 #include <stdbool.h>
 #include "disk_monitor.h"
 
+#define MAX_DISK_NAME_LEN 32
+
 // Monitoring configuration
 typedef struct {
     bool monitor_cpu;
     bool monitor_memory;
     bool monitor_disk;
     bool monitor_processes;
+    bool monitor_docker;    // New field for Docker monitoring
     int num_processes;    // Number of top processes to show
     char disk_device[MAX_DISK_NAME_LEN];
     int update_interval;

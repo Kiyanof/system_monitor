@@ -16,6 +16,8 @@
 #include <signal.h>
 #include <time.h>
 #include "docker_monitor.h"
+#include "monitor_config.h"
+#include "disk_monitor.h"
 
 #define MAX_DISK_NAME_LEN 32
 #define MAX_PROC_NAME 256
@@ -27,18 +29,6 @@
 #define PROC_DISK_SLEEP  'D'
 #define PROC_STOPPED     'T'
 #define PROC_ZOMBIE      'Z'
-
-// Monitoring configuration
-typedef struct {
-    bool monitor_cpu;
-    bool monitor_memory;
-    bool monitor_disk;
-    bool monitor_processes;
-    bool monitor_docker;    // New field for Docker monitoring
-    int num_processes;    // Number of top processes to show
-    char disk_device[MAX_DISK_NAME_LEN];
-    int update_interval;
-} MonitorConfig;
 
 // Structure to hold CPU statistics
 typedef struct {
@@ -65,18 +55,6 @@ typedef struct {
     unsigned long swap_free;
 } MemoryStats;
 
-// Structure to hold disk I/O statistics
-typedef struct {
-    unsigned long reads_completed;
-    unsigned long reads_merged;
-    unsigned long sectors_read;
-    unsigned long time_reading;
-    unsigned long writes_completed;
-    unsigned long writes_merged;
-    unsigned long sectors_written;
-    unsigned long time_writing;
-} DiskStats;
-
 // Enhanced process information structure
 typedef struct {
     pid_t pid;
@@ -100,10 +78,6 @@ float calculate_cpu_usage(CPUStats *prev, CPUStats *current);
 int read_memory_stats(MemoryStats *stats);
 void calculate_memory_usage(MemoryStats *stats, float *usage_percent);
 
-// Disk monitoring
-int read_disk_stats(const char *device, DiskStats *stats);
-void calculate_disk_usage(DiskStats *prev, DiskStats *current, float *read_speed, float *write_speed);
-
 // Process monitoring functions
 int read_proc_stat(pid_t pid, ProcessInfo *info);
 int read_proc_status(pid_t pid, ProcessInfo *info);
@@ -120,7 +94,6 @@ void print_cpu_info(float usage);
 void print_memory_info(MemoryStats *stats);
 void print_disk_info(float read_speed, float write_speed);
 void print_usage(const char *program_name);
-void parse_arguments(int argc, char *argv[], MonitorConfig *config);
 
 // Docker monitoring functions
 void print_docker_header(void);
